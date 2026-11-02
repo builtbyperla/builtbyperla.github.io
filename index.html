@@ -1,34 +1,262 @@
 <!doctype html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Demos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <meta name="description" content="A small collection of projects built by Perla.">
+  <title>Portfolio</title>
+  <link rel="icon" href="media/p-monogram.svg" type="image/svg+xml">
   <style>
-    body { max-width: 720px; margin: 0 auto; padding: 4rem 1.25rem; }
-    .lead { color: var(--bs-secondary-color); }
-    .demo-list a { text-decoration: none; }
-    .demo-list a:hover { text-decoration: underline; }
+    :root { color-scheme: light; --paper: #faf9f6; --ink: #252923; --muted: #687064; --line: #dcded5; --accent: #40573a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 system-ui, sans-serif; }
+    main { max-width: 1060px; margin: auto; padding: 48px 28px; }
+    a { color: var(--accent); text-underline-offset: 4px; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+    h1 { font-size: 26px; font-weight: 400; line-height: 1.3; margin: 0 0 14px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 30px; height: 30px; flex: 0 0 auto; }
+    nav { display: flex; gap: 12px 24px; flex-wrap: wrap; }
+    nav a { font-size: 14px; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 10px 0 16px; }
+    .section-heading h2 { margin: 0; font-size: 14px; font-weight: 400; color: var(--muted); }
+    .project { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); gap: clamp(24px, 5vw, 64px); align-items: start; border-top: 1px solid var(--line); padding: 28px 0; }
+    .project-overview, .project-details { min-width: 0; overflow-wrap: anywhere; }
+    .project-heading { margin-bottom: 10px; }
+    h3 { font-size: 20px; line-height: 1.3; font-weight: 400; margin: 0; }
+    .project-preview { display: block; width: 100%; margin: 16px 0; padding: 0; border: 0; border-radius: 4px; background: none; cursor: zoom-in; }
+    .project-preview:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+    .project-image { display: block; width: 100%; height: auto; border-radius: inherit; }
+    .image-lightbox { width: min(94vw, 1440px); max-width: none; max-height: 94vh; margin: auto; padding: 0; overflow: visible; border: 0; border-radius: 6px; background: transparent; }
+    .image-lightbox::backdrop { background: rgb(20 25 19 / .92); }
+    .lightbox-image { display: block; max-width: 100%; max-height: calc(94vh - 32px); margin: auto; border-radius: 4px; object-fit: contain; }
+    .lightbox-close { position: absolute; top: -12px; right: -12px; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); color: var(--ink); font: 24px/1 system-ui, sans-serif; cursor: pointer; }
+    .short-description { color: var(--muted); max-width: 670px; margin: 0 0 15px; }
+    .demo-link { display: inline-block; font-size: 14px; margin-bottom: 20px; }
+    .project-details { display: grid; gap: 20px; }
+    .description.structured { white-space: normal; font-size: 15px; }
+    .description.structured p + p { margin-top: 6px; }
+    .feature-list { margin: 8px 0 0; padding-left: 20px; }
+    .stack-list { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 6px 12px; margin: 0; }
+    .stack-list dt { color: var(--muted); font-weight: 400; }
+    .stack-list dd { margin: 0; }
+    h4 { font-size: 14px; font-weight: 400; color: var(--muted); margin: 0 0 5px; }
+    .project-details p { margin: 0; font-size: 15px; }
+    .description { white-space: pre-line; line-height: 24px; }
+    .expandable-section { margin-inline: -12px; padding: 0 12px; border-radius: 4px; cursor: pointer; transition: background-color .2s ease; }
+    .expandable-section:hover { background: rgb(64 87 58 / .06); }
+    .description-preview { position: relative; overflow: hidden; transition: height .28s ease; }
+    .description-preview:not(.is-expanded) { height: 92px; overflow: hidden; }
+    .description-preview::after { content: ''; position: absolute; inset: auto 0 0; height: 54px; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--paper)); opacity: 0; transition: opacity .35s ease; }
+    .description-preview.has-overflow:not(.is-expanded)::after { opacity: 1; }
+    .description-preview:not(.has-overflow):not(.is-expanded) { height: auto; }
+    @media (prefers-reduced-motion: reduce) { .expandable-section, .description-preview, .description-preview::after { transition: none; } }
+    .description-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: pointer; border-radius: 4px; }
+    .description-toggle:hover { color: var(--accent); }
+    .description-toggle-icon { color: var(--accent); font-size: 18px; line-height: 1; }
+    .description-toggle[hidden] { display: none; }
+    .placeholder { color: var(--muted); }
+    .media { width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 6px; margin-top: 12px; }
+    footer { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 24px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 700px) { .project { grid-template-columns: minmax(0, 1fr); gap: 16px; } .demo-link { margin-bottom: 0; } }
+    @media (max-width: 540px) { main { padding: 32px 20px; } }
   </style>
 </head>
 <body>
-  <header class="mb-5">
-    <h1 class="h3 mb-2">Demos</h1>
-    <p class="lead mb-0">Static builds and prototypes built by Perla.</p>
-  </header>
-
   <main>
-    <h2 class="h6 text-uppercase text-secondary mb-3">Available</h2>
-    <ul class="list-group list-group-flush demo-list mb-5">
-      <!-- Add one <li> per demo. Link to the demo's own directory. -->
-      <li class="list-group-item px-0 py-3">
-        <a class="fw-medium" href="demos/texteditor/">Percolate Text Editor</a>
-        <div class="small text-secondary">Text editor with an annotation-based interaction model for working with AI coding assistants.</div>
-      </li>
-    </ul>
-  </main>
+    <header>
+      <div class="brand">
+        <h1>Perla's Portfolio</h1>
+      </div>
+      <nav aria-label="Social and profile links">
+        <a href="https://github.com/orgs/builtbyperla/repositories">GitHub ↗</a>
+        <a href="https://perlabravo.dev/">Personal Website ↗</a>
+      </nav>
+    </header>
 
+    <section aria-labelledby="projects-heading">
+      <div class="section-heading">
+      </div>
+
+      <article class="project">
+        <div class="project-overview">
+        <div class="project-heading"><h3>Percolate</h3></div>
+        <p class="short-description">A text editor with an annotation-based interaction model for working with AI coding assistants.</p>
+        <button class="project-preview" type="button" aria-label="View a larger preview of Percolate">
+          <img class="project-image" src="media/percolatepreviewimage.jpeg" alt="Percolate text editor showing a code file with annotations and an AI assistant panel" width="2048" height="1429">
+        </button>
+        <a class="demo-link" href="demos/texteditor/">Try the demo <span aria-hidden="true">↗</span></a>
+        </div>
+          <div class="project-details">
+              <section><h4>Context</h4><p class="description">The user can select code, attach notes and comments to it, manage these annotations in a unified interface, and attach them to messages it sends to the AI agent. This also extended to diff views and even the agent's markdown replies.</p>
+              </section>
+              <section><h4>Status</h4><p>Backend in development.</p></section>
+              <section><h4>Integration and interaction design</h4><div class="description structured">
+                <ul class="feature-list">
+                  <li>Annotation state stays synchronized across code, diff, and agent-response views</li>
+                  <li>Evidence can be annotated, included, excluded, or automatically consumed after sending</li>
+                  <li>Separate in-place read and write modes to avoid visual clutter with a quick-annotate functionality to bridge them.</li>
+                </ul>
+              </div></section>
+              <section><h4>Tech Stack</h4><p>Built with SolidJS, TypeScript, Vercel AI SDK, CodeMirror, and Electron.</p></section>
+              <section><h4>Source code</h4><p><a href="https://github.com/builtbyperla/percolate-text-editor">GitHub · percolate-text-editor ↗</a></p></section>
+            <!-- <section><h4>Multimedia</h4><p class="placeholder">Project walkthrough coming soon.</p> -->
+              <!-- Optional embed: <iframe class="media" src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Percolate project walkthrough" loading="lazy" allowfullscreen></iframe> -->
+              <!-- For a local video: <video class="media" controls preload="metadata"><source src="media/percolate.mp4" type="video/mp4">Your browser does not support embedded video.</video> -->
+          </div>
+      </article>
+
+      <article class="project">
+        <div class="project-overview">
+        <div class="project-heading"><h3>Ambient Multimodal Storyboard Agent</h3></div>
+        <p class="short-description">An ambient meeting agent designed for creative storyboarding.</p>
+        <button class="project-preview" type="button" aria-label="View a larger preview of Ambient Multimodal Storyboard Agent">
+          <img class="project-image" src="media/storyboardpreviewimage.png" alt="Ambient Multimodal Storyboard Agent workspace with a storyboard canvas, image tiles, and a meeting transcript" width="3141" height="2127">
+        </button>
+        <!-- Optional demo: <a class="demo-link" href="YOUR_DEMO_URL">Try the demo ↗</a> -->
+        </div>
+          <div class="project-details">
+              <section><h4>Context</h4><p>The agent listens to the active discussion and proactively generates images and updates the board. Speech-to-text transcripts are interpreted during pauses in speech.</p></section>
+
+              <section><h4>Tech Stack</h4><div class="description structured">
+                <p>A fully async Python backend (utilizing FastAPI) and a React/TypeScript frontend communicate over WebSockets.</p>
+                <p>
+                <dl class="stack-list">
+                <dt>Speech-to-text</dt><dd>ElevenLabs Scribe v2 Realtime API</dd>
+                <dt>Agent inference</dt><dd>Anthropic’s Claude models</dd>
+                <dt>Image generation</dt><dd>Black Forest Labs’ flux-schnell-9b, running on Replicate</dd>
+                <dt>Memory</dt><dd>OpenAI’s text-embedding-3-small for embeddings and GPT for long-term memory summarization</dd>
+              </dl></div></section>
+              <section><h4>Motivation</h4><div class="description structured">
+                <p>A case study in agentic AI applications, focused on four challenges:
+                    <ol>
+                    <li>Always-on speech-to-text is the primary input mode and the agent must be able to respond and recover accordingly despite external latency factors</li>
+                    <li>The agent operates as an ambient collaborator in creative workflows and makes changes proactively despite not being provided precise instructions or data</li>
+                    <li>The agent interacts directly with complex UI objects on behalf of the user while remaining fully interactive for the end user</li>
+                    <li>Token counts and context must be managed to avoid skyrocketing monetary + performance costs over long user sessions</li>
+                    </ol>
+                </p>
+              <section><h4>Source code</h4><p><a href="https://github.com/builtbyperla/ai-storyboard">GitHub · ai-storyboard ↗</a></p></section>
+
+              </div></section>
+                <section><h4>Demo</h4>
+                    <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7425744990993145856?compact=1" height="400" width="500" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
+                </section>
+          </div>
+      </article>
+    </section>
+    <footer>Built by Perla.</footer>
+  </main>
+  <dialog class="image-lightbox" aria-label="Expanded project preview">
+    <button class="lightbox-close" type="button" aria-label="Close expanded preview">×</button>
+    <img class="lightbox-image" src="" alt="">
+  </dialog>
+  <script>
+    const lightbox = document.querySelector('.image-lightbox');
+    const lightboxImage = lightbox.querySelector('.lightbox-image');
+    const closeLightbox = lightbox.querySelector('.lightbox-close');
+    let previewTrigger;
+
+    document.querySelectorAll('.project-preview').forEach((button) => {
+      button.addEventListener('click', () => {
+        const image = button.querySelector('img');
+        previewTrigger = button;
+        lightboxImage.src = image.currentSrc || image.src;
+        lightboxImage.alt = image.alt;
+        lightbox.showModal();
+      });
+    });
+    closeLightbox.addEventListener('click', () => lightbox.close());
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) lightbox.close();
+    });
+    lightbox.addEventListener('close', () => {
+      lightboxImage.removeAttribute('src');
+      previewTrigger?.focus();
+    });
+
+    document.querySelectorAll('.description').forEach((description, index) => {
+      // Trim source indentation at the edges, preserving intentional internal newlines.
+      if (!description.childElementCount) description.textContent = description.textContent.trim();
+      const section = description.parentElement;
+      const heading = section.querySelector('h4');
+      const sectionName = heading.textContent;
+      const preview = document.createElement('div');
+      preview.id = `description-preview-${index + 1}`;
+      preview.className = 'description-preview';
+      description.before(preview);
+      preview.append(description);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'description-toggle';
+      const label = document.createElement('span');
+      label.textContent = sectionName;
+      const icon = document.createElement('span');
+      icon.className = 'description-toggle-icon';
+      icon.textContent = '+';
+      icon.setAttribute('aria-hidden', 'true');
+      button.append(label, icon);
+      button.setAttribute('aria-label', `Expand ${sectionName}`);
+      button.setAttribute('aria-controls', preview.id);
+      button.setAttribute('aria-expanded', 'false');
+      const staticLabel = document.createElement('span');
+      staticLabel.textContent = sectionName;
+      heading.replaceChildren(staticLabel, button);
+      section.classList.add('expandable-section');
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const updateExpanded = (expanded) => {
+        preview.classList.toggle('is-expanded', expanded);
+        icon.textContent = expanded ? '−' : '+';
+        button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} ${sectionName}`);
+        button.setAttribute('aria-expanded', String(expanded));
+      };
+      const togglePreview = (expanded) => {
+        if (expanded === preview.classList.contains('is-expanded')) return;
+        const startHeight = preview.getBoundingClientRect().height;
+        preview.style.height = `${startHeight}px`;
+        // Commit the starting measurement before requesting the new height.
+        void preview.offsetHeight;
+        updateExpanded(expanded);
+        const endHeight = expanded ? preview.scrollHeight : 92;
+        if (prefersReducedMotion) {
+          preview.style.height = '';
+          return;
+        }
+        requestAnimationFrame(() => {
+          preview.style.height = `${endHeight}px`;
+        });
+        const finishTransition = (event) => {
+          if (event.propertyName !== 'height') return;
+          preview.style.height = '';
+          preview.removeEventListener('transitionend', finishTransition);
+        };
+        preview.addEventListener('transitionend', finishTransition);
+      };
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        togglePreview(!preview.classList.contains('is-expanded'));
+      });
+      section.addEventListener('click', (event) => {
+        if (event.target.closest('a, button, input, select, textarea')) return;
+        if (!preview.classList.contains('has-overflow')) return;
+        togglePreview(!preview.classList.contains('is-expanded'));
+      });
+      const updateOverflow = () => {
+        const overflows = description.scrollHeight > 92;
+        button.hidden = !overflows;
+        staticLabel.hidden = overflows;
+        preview.classList.toggle('has-overflow', overflows);
+        section.classList.toggle('expandable-section', overflows);
+      };
+      updateOverflow();
+      // Recheck rendered height when the responsive columns change width.
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(updateOverflow).observe(description);
+      } else {
+        window.addEventListener('resize', updateOverflow);
+      }
+    });
+  </script>
 </body>
 </html>
